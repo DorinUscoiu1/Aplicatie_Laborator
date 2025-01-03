@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "784276303360",
+    "project_id": "aplicatielaborator",
+    "storage_bucket": "aplicatielaborator.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784276303360:android:55f2a23f89ecd4fe6db2e5",
+        "android_client_info": {
+          "package_name": "com.example.aplicatie_laborator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0sAt38kQBIpB65nIf9hSGgnox0XUi2cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
