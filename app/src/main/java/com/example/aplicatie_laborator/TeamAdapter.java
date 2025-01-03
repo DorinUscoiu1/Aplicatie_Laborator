@@ -29,7 +29,7 @@ public class TeamAdapter extends RecyclerView.Adapter<TeamViewHolder> {
     public void onBindViewHolder(@NonNull TeamViewHolder holder, int position) {
         Team team = teamList.get(position);
         holder.teamName.setText(team.getName());
-        holder.teamDescription.setText(team.getDescription());
+        holder.teamDescription.setText(team.getNationality());
         holder.itemView.setOnClickListener(v -> listener.onTeamClick(team));
     }
 

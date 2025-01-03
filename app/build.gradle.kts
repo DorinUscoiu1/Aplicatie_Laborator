@@ -45,6 +45,8 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.room.common)
     implementation(libs.room.runtime)
+    implementation(libs.recyclerview)
+    implementation("com.google.code.gson:gson:2.8.8")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
