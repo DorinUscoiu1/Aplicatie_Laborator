@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -30,30 +31,38 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String BASE_URL = "https://ergast.com/api/f1/"; // BASE_URL corectat (fără fișierul JSON)
+    private static final String BASE_URL = "https://ergast.com/api/f1/";
     private List<Team> arrTeams = new ArrayList<>();
     private TeamAdapter teamAdapter;
     private TeamDatabase teamDatabase;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Check for POST_NOTIFICATIONS permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
-                        1);
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
             }
         }
 
+        // Creare canal de notificare
         createNotificationChannel();
+
+        // Afișare notificare pentru următoarea cursă
         showNextRaceNotification();
+
+        // Inițializare butoane și RecyclerView
         Button startQuizButton = findViewById(R.id.btn_start_quiz);
         Button viewLeaderboardButton = findViewById(R.id.btn_view_leaderboard);
-
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
+
+        // Layout Manager pentru RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Inițializare baza de date locală
@@ -63,14 +72,28 @@ public class MainActivity extends AppCompatActivity {
         String url = BASE_URL + "2024/constructors.json";
         new AsyncTaskHandleJson().execute(url);
 
-        // Inițializare adapter
+        // Inițializare adapter pentru RecyclerView
         teamAdapter = new TeamAdapter(arrTeams, team -> {
             Intent intent = new Intent(MainActivity.this, TeamDetailsActivity.class);
             intent.putExtra("team", team);
             startActivity(intent);
         });
-
         recyclerView.setAdapter(teamAdapter);
+
+        // Inițializare SearchView
+        searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false; // Nu e necesar să facem nimic la submit
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterTeams(newText); // Filtrarea echipelor
+                return true;
+            }
+        });
 
         // Buton pentru a începe quiz-ul
         startQuizButton.setOnClickListener(v -> {
@@ -83,19 +106,38 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
             startActivity(intent);
         });
+        startQuizButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, QuizActivity.class);
+            startActivity(intent);
+        });
 
+        // Buton pentru a vizualiza leaderboard-ul
+        viewLeaderboardButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
+            startActivity(intent);
+        });
         // Încărcarea echipelor din baza de date locală
         loadTeamsFromDatabase();
     }
 
+    private void filterTeams(String query) {
+        List<Team> filteredTeams = new ArrayList<>();
+        for (Team team : arrTeams) {
+            if (team.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredTeams.add(team);
+            }
+        }
+
+        // Actualizăm adapterul cu lista filtrată
+        teamAdapter.updateList(filteredTeams);
+    }
+
     // AsyncTask pentru a prelua datele de la API
     private class AsyncTaskHandleJson extends AsyncTask<String, Void, String> {
-
         @Override
         protected String doInBackground(String... urls) {
             String result = "";
             HttpURLConnection urlConnection = null;
-
             try {
                 URL url = new URL(urls[0]);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -110,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
                     result += current;
                     data = inputStreamReader.read();
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -118,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                     urlConnection.disconnect();
                 }
             }
-
             return result;
         }
 
@@ -135,21 +175,16 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         try {
-            // Analizează JSON-ul și obține echipele
             JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-            JsonObject constructorTable = jsonObject.getAsJsonObject("MRData")
-                    .getAsJsonObject("ConstructorTable");
+            JsonObject constructorTable = jsonObject.getAsJsonObject("MRData").getAsJsonObject("ConstructorTable");
             JsonArray constructors = constructorTable.getAsJsonArray("Constructors");
 
             List<Team> teamList = new ArrayList<>();
-
-            // Prelucrarea fiecărei echipe
             for (int i = 0; i < constructors.size(); i++) {
                 JsonObject constructor = constructors.get(i).getAsJsonObject();
                 String name = constructor.get("name").getAsString();
                 String nationality = constructor.get("nationality").getAsString();
                 String logoUrl = "URL_LOGO"; // Placeholder pentru logo, trebuie adăugat mai târziu
-
                 teamList.add(new Team(name, nationality, logoUrl));
             }
 
@@ -157,20 +192,15 @@ public class MainActivity extends AppCompatActivity {
             arrTeams.addAll(teamList);
             teamAdapter.notifyDataSetChanged();
 
-            // Salvăm echipele în baza de date
             saveTeamsToDatabase(teamList);
-
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to parse data", Toast.LENGTH_SHORT).show();
         }
     }
 
-
     private void saveTeamsToDatabase(List<Team> teams) {
-        new Thread(() -> {
-            teamDatabase.teamDao().insert(teams);
-        }).start();
+        new Thread(() -> teamDatabase.teamDao().insert(teams)).start();
     }
 
     private void loadTeamsFromDatabase() {
@@ -178,12 +208,7 @@ public class MainActivity extends AppCompatActivity {
             List<Team> teams = teamDatabase.teamDao().getAllTeams();
             arrTeams.clear();
             arrTeams.addAll(teams);
-
-            runOnUiThread(() -> {
-                if (teamAdapter != null) {
-                    teamAdapter.notifyDataSetChanged();
-                }
-            });
+            runOnUiThread(() -> teamAdapter.notifyDataSetChanged());
         }).start();
     }
 

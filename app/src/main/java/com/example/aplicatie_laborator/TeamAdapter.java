@@ -32,7 +32,10 @@ public class TeamAdapter extends RecyclerView.Adapter<TeamViewHolder> {
         holder.teamDescription.setText(team.getNationality());
         holder.itemView.setOnClickListener(v -> listener.onTeamClick(team));
     }
-
+    public void updateList(List<Team> filteredTeams) {
+        this.teamList = filteredTeams;
+        notifyDataSetChanged();
+    }
     @Override
     public int getItemCount() {
         return teamList.size();
@@ -41,4 +44,5 @@ public class TeamAdapter extends RecyclerView.Adapter<TeamViewHolder> {
     public interface OnTeamClickListener {
         void onTeamClick(Team team);
     }
+
 }
