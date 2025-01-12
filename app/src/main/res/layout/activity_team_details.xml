@@ -4,40 +4,59 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/background_color">
 
-    <!-- Team Name -->
-    <TextView
-        android:id="@+id/team_name"
+    <!-- Team CaArd -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:text="Team Name"
-        android:gravity="center"
-        android:paddingBottom="8dp" />
+        android:orientation="vertical"
+        android:background="@drawable/card_background"
+        android:elevation="4dp"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
 
-    <!-- Team Description -->
-    <TextView
-        android:id="@+id/team_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Team Description"
-        android:paddingBottom="16dp" />
+        <!-- Team Name -->
+        <TextView
+            android:id="@+id/team_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:text="Team Name"
+            android:gravity="center"
+            android:textColor="@color/primary_text_color"
+            android:paddingBottom="8dp" />
 
-    <!-- RecyclerView for Drivers -->
+        <!-- Team Description -->
+        <TextView
+            android:id="@+id/team_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:text="Team Description"
+            android:textColor="@color/secondary_text_color"
+            android:paddingBottom="16dp" />
+    </LinearLayout>
+
+    <!-- Drivers Section -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Drivers"
         android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/primary_text_color"
         android:layout_marginBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
-
+        android:maxHeight="200dp"
+        android:background="@drawable/recycler_background"
+        android:padding="8dp"
+        android:clipToPadding="false" />
 </LinearLayout>

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,9 +21,13 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -41,8 +46,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Check for POST_NOTIFICATIONS permission (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -50,29 +53,22 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
             }
         }
-
-        // Creare canal de notificare
         createNotificationChannel();
-
-        // Afișare notificare pentru următoarea cursă
         showNextRaceNotification();
 
-        // Inițializare butoane și RecyclerView
-        Button startQuizButton = findViewById(R.id.btn_start_quiz);
-        Button viewLeaderboardButton = findViewById(R.id.btn_view_leaderboard);
+        ImageButton startQuizButton = findViewById(R.id.btn_start_quiz);
+        ImageButton viewLeaderboardButton = findViewById(R.id.btn_view_leaderboard);
+        ImageButton newsButton=findViewById(R.id.btn_news);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
-        // Layout Manager pentru RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Inițializare baza de date locală
-        teamDatabase = Room.databaseBuilder(getApplicationContext(), TeamDatabase.class, "team.db").build();
-
-        // Apel API pentru a obține constructorii
+        teamDatabase = Room.databaseBuilder(getApplicationContext(), TeamDatabase.class, "team.db")
+                .fallbackToDestructiveMigration()
+                .build();
         String url = BASE_URL + "2024/constructors.json";
         new AsyncTaskHandleJson().execute(url);
 
-        // Inițializare adapter pentru RecyclerView
         teamAdapter = new TeamAdapter(arrTeams, team -> {
             Intent intent = new Intent(MainActivity.this, TeamDetailsActivity.class);
             intent.putExtra("team", team);
@@ -80,28 +76,25 @@ public class MainActivity extends AppCompatActivity {
         });
         recyclerView.setAdapter(teamAdapter);
 
-        // Inițializare SearchView
         searchView = findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false; // Nu e necesar să facem nimic la submit
+                return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filterTeams(newText); // Filtrarea echipelor
+                filterTeams(newText);
                 return true;
             }
         });
 
-        // Buton pentru a începe quiz-ul
         startQuizButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, QuizActivity.class);
             startActivity(intent);
         });
 
-        // Buton pentru a vizualiza leaderboard-ul
         viewLeaderboardButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
             startActivity(intent);
@@ -110,13 +103,25 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, QuizActivity.class);
             startActivity(intent);
         });
+        newsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, NewsActivity.class);
+            startActivity(intent);
+        });
 
-        // Buton pentru a vizualiza leaderboard-ul
         viewLeaderboardButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
             startActivity(intent);
         });
-        // Încărcarea echipelor din baza de date locală
+        ImageButton standingsButton = findViewById(R.id.btn_standings);
+        standingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, StandingsActivity.class);
+            startActivity(intent);
+        });
+        ImageButton calendarButton=findViewById(R.id.btn_calendar);
+        calendarButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
+            startActivity(intent);
+        });
         loadTeamsFromDatabase();
     }
 
@@ -127,12 +132,9 @@ public class MainActivity extends AppCompatActivity {
                 filteredTeams.add(team);
             }
         }
-
-        // Actualizăm adapterul cu lista filtrată
         teamAdapter.updateList(filteredTeams);
     }
 
-    // AsyncTask pentru a prelua datele de la API
     private class AsyncTaskHandleJson extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -184,14 +186,14 @@ public class MainActivity extends AppCompatActivity {
                 JsonObject constructor = constructors.get(i).getAsJsonObject();
                 String name = constructor.get("name").getAsString();
                 String nationality = constructor.get("nationality").getAsString();
-                String logoUrl = "URL_LOGO"; // Placeholder pentru logo, trebuie adăugat mai târziu
-                teamList.add(new Team(name, nationality, logoUrl));
+                int logoResource = getTeamLogo(name);
+                teamList.add(new Team(name, nationality, logoResource));
             }
 
             arrTeams.clear();
             arrTeams.addAll(teamList);
             teamAdapter.notifyDataSetChanged();
-
+            saveTeamsToFile(teamList);
             saveTeamsToDatabase(teamList);
         } catch (Exception e) {
             e.printStackTrace();
@@ -245,6 +247,45 @@ public class MainActivity extends AppCompatActivity {
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(1, builder.build());
+        }
+    }
+    private void saveTeamsToFile(List<Team> teams) {
+        Gson gson = new Gson();
+        String json = gson.toJson(teams);
+        try {
+            FileOutputStream fos = openFileOutput("teams.json", MODE_PRIVATE);
+            fos.write(json.getBytes());
+            fos.close();
+            Toast.makeText(this, "Teams saved to file", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to save teams to file", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private int getTeamLogo(String teamName) {
+        switch (teamName) {
+            case "Mercedes":
+                return R.drawable.mercedes;
+            case "Ferrari":
+                return R.drawable.ferrari;
+            case "Red Bull":
+                return R.drawable.redbull;
+            case "McLaren":
+                return R.drawable.mclaren;
+            case "Aston Martin":
+                return R.drawable.astonmartin;
+            case "Alpine F1 Team":
+                return R.drawable.alpine;
+            case "Sauber":
+                return R.drawable.sauber;
+            case "Haas F1 Team":
+                return R.drawable.haas;
+            case "RB F1 Team":
+                return R.drawable.rb;
+            case "Williams":
+                return R.drawable.williams;
+            default:
+                return R.drawable.redbull;
         }
     }
 }

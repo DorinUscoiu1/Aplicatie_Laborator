@@ -31,6 +31,7 @@ public class DriverAdapter extends RecyclerView.Adapter<DriverViewHolder> {
         Driver driver = driverList.get(position);
         holder.driverName.setText(driver.getName());
         holder.driverDescription.setText(driver.getDescription());
+        holder.driverImage.setImageResource(driver.getImageResourceId());
         holder.itemView.setOnClickListener(v -> listener.onDriverClick(driver));
     }
 

@@ -3,12 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/background_color">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/card_background"
+        android:elevation="4dp"
+        android:padding="16dp"
+        android:layout_margin="8dp">
 
         <!-- Driver Image -->
         <ImageView
@@ -18,7 +23,9 @@
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_launcher_foreground"
-            android:contentDescription="Driver Image" />
+            android:contentDescription="Driver Image"
+            android:scaleType="centerCrop"
+            android:background="@drawable/circle_background" />
 
         <!-- Driver Name -->
         <TextView
@@ -27,6 +34,7 @@
             android:layout_height="wrap_content"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="@color/primary_text_color"
             android:text="Driver Name"
             android:gravity="center"
             android:paddingBottom="8dp" />
@@ -37,8 +45,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/secondary_text_color"
             android:text="Driver Description"
-            android:paddingBottom="16dp" />
-
+            android:paddingBottom="16dp"
+            android:gravity="center" />
     </LinearLayout>
 </ScrollView>

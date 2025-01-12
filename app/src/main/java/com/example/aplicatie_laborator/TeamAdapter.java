@@ -30,6 +30,7 @@ public class TeamAdapter extends RecyclerView.Adapter<TeamViewHolder> {
         Team team = teamList.get(position);
         holder.teamName.setText(team.getName());
         holder.teamDescription.setText(team.getNationality());
+        holder.teamLogo.setImageResource(team.getLogoResourceId());
         holder.itemView.setOnClickListener(v -> listener.onTeamClick(team));
     }
     public void updateList(List<Team> filteredTeams) {

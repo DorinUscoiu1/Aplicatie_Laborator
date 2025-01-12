@@ -25,22 +25,24 @@ public class QuizActivity extends AppCompatActivity {
     private int currentQuestionIndex = 0;
 
     private final String[] questions = {
-            "Who won the 2021 F1 Championship?",
-            "Which team has the most F1 championships?",
-            "What is the maximum number of points a driver can score in one race?",
-            "Which country hosts the Monaco Grand Prix?",
-            "What year was the first F1 season?"
+            "Who won the 2024 Drivers' Championship?",
+            "Which team secured the 2024 Constructors' Championship?",
+            "Who claimed pole position at the 2024 Italian Grand Prix?",
+            "How many races were held in the 2024 season?",
+            "Which driver made their debut in the 2024 season?"
     };
 
     private final String[][] options = {
-            {"Lewis Hamilton", "Max Verstappen", "Sebastian Vettel"},
-            {"Ferrari", "Mercedes", "Red Bull"},
-            {"25", "26", "30"},
-            {"France", "Monaco", "Italy"},
-            {"1948", "1950", "1952"}
+            {"Max Verstappen", "Lewis Hamilton", "Oscar Piastri"},
+            {"Red Bull Racing", "Ferrari", "Mclaren"},
+            {"Charles Leclerc", "Lando Norris", "Carlos Sainz"},
+            {"22", "23", "24"},
+            {"Liam Lawson", "Logan Sargeant", "Franco Colapinto"}
     };
 
-    private final int[] correctAnswers = {1, 0, 1, 1, 1};
+    private final int[] correctAnswers = {0, 2, 1, 1, 2};
+
+
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
@@ -95,12 +97,12 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void saveScore(int score) {
-        String username = "User " + System.currentTimeMillis(); // Replace with actual user input if needed
+        String username = "User " + System.currentTimeMillis();
         UserScore userScore = new UserScore(0, username, score);
 
         executorService.execute(() -> {
             F1Database.getDatabase(QuizActivity.this).userScoreDao().insert(userScore);
-            mainThreadHandler.post(() -> Toast.makeText(QuizActivity.this, "Score saved successfully!", Toast.LENGTH_SHORT).show());
+            mainThreadHandler.post(() -> Toast.makeText(QuizActivity.this, "Score: "+score, Toast.LENGTH_SHORT).show());
         });
     }
 

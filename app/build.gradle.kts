@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.recyclerview)
     implementation("com.google.code.gson:gson:2.8.8")
+    implementation(libs.cronet.embedded)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

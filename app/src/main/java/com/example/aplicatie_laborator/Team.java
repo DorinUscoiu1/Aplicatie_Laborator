@@ -12,17 +12,15 @@ public class Team implements Serializable {
     private int id;
     private String name;
     private String nationality;
-    private String logoUrl;
+    private int logoResourceId;
 
 
     // Constructor
-    public Team(String name, String nationality, String logoUrl) {
+    public Team(String name, String nationality, int logoResourceId) {
         this.name = name;
         this.nationality = nationality;
-        this.logoUrl = logoUrl;
+        this.logoResourceId = logoResourceId;
     }
-
-    // Getter și setter pentru id, name, nationality și logoUrl
     public int getId() {
         return id;
     }
@@ -47,11 +45,11 @@ public class Team implements Serializable {
         this.nationality = nationality;
     }
 
-    public String getLogoUrl() {
-        return logoUrl;
+    public int getLogoResourceId() {
+        return logoResourceId;
     }
 
-    public void setLogoUrl(String logoUrl) {
-        this.logoUrl = logoUrl;
+    public void setLogoResourceId(int logoResourceId) {
+        this.logoResourceId = logoResourceId;
     }
 }
