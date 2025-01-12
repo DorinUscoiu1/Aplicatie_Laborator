@@ -11,11 +11,9 @@ public class NewsDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_details);
 
-        // Preluăm datele din intent
         String title = getIntent().getStringExtra("title");
         String details = getIntent().getStringExtra("details");
 
-        // Setăm datele în TextView-uri
         TextView newsTitle = findViewById(R.id.news_title);
         TextView newsDetails = findViewById(R.id.news_details);
 

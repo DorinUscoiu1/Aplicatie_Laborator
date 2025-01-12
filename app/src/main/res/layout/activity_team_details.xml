@@ -7,7 +7,6 @@
     android:padding="16dp"
     android:background="@color/background_color">
 
-    <!-- Team CaArd -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +16,6 @@
         android:padding="16dp"
         android:layout_marginBottom="16dp">
 
-        <!-- Team Name -->
         <TextView
             android:id="@+id/team_name"
             android:layout_width="match_parent"
@@ -29,7 +27,6 @@
             android:textColor="@color/primary_text_color"
             android:paddingBottom="8dp" />
 
-        <!-- Team Description -->
         <TextView
             android:id="@+id/team_description"
             android:layout_width="match_parent"
@@ -41,7 +38,6 @@
             android:paddingBottom="16dp" />
     </LinearLayout>
 
-    <!-- Drivers Section -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

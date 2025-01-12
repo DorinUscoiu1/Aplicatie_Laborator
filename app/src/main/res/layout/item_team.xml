@@ -6,7 +6,6 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <!-- Imagine echipă -->
     <ImageView
         android:id="@+id/team_logo"
         android:layout_width="80dp"
@@ -14,7 +13,6 @@
         android:layout_marginEnd="16dp"
         android:src="@drawable/ic_launcher_foreground" />
 
-    <!-- Nume și descriere echipă -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"

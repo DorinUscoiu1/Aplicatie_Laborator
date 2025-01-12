@@ -20,8 +20,6 @@
             android:gravity="center"
             android:textColor="#FF4500"
             android:layout_marginBottom="24dp" />
-
-        <!-- Card 1 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,8 +52,6 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
-        <!-- Card 2 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,7 +85,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card 3 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -122,7 +117,6 @@
                     android:layout_marginTop="8dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-        <!-- Card 4 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -156,7 +150,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card 5 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -190,7 +183,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card 6 -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

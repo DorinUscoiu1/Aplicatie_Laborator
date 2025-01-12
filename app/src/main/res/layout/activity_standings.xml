@@ -5,15 +5,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="8dp">
-
-    <!-- Butoane pentru schimbarea între clasamente -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp">
 
-        <!-- Buton pentru Driver Standings -->
         <Button
             android:id="@+id/btn_driver_standings"
             android:layout_width="0dp"
@@ -24,7 +21,6 @@
             android:backgroundTint="@color/secondary_text_color"
             android:textColor="@android:color/white" />
 
-        <!-- Buton pentru Team Standings -->
         <Button
             android:id="@+id/btn_team_standings"
             android:layout_width="0dp"
@@ -36,7 +32,6 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- RecyclerView pentru afișarea clasamentelor -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_standings"
         android:layout_width="match_parent"

@@ -49,7 +49,6 @@ public class StandingsActivity extends AppCompatActivity {
     }
 
     private List<Driver> fetchDriverData() {
-        // Simulează datele (sau încarcă-le dintr-o bază de date)
         List<Driver> drivers = new ArrayList<>();
         drivers.add(new Driver("Max Verstappen", "437", R.drawable.max_verstappen));
         drivers.add(new Driver("Lando Norris", "374", R.drawable.lando_norris));

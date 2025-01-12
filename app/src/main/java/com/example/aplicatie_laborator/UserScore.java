@@ -13,14 +13,11 @@ public class UserScore {
 
     private int score;
 
-    // Constructor
     public UserScore(int id, String username, int score) {
         this.id = id;
         this.username = username;
         this.score = score;
     }
-
-    // Getters and Setters
     public int getId() {
         return id;
     }

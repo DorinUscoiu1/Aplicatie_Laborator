@@ -4,16 +4,20 @@ import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SearchView;
+import android.widget.Switch;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -27,11 +31,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private TeamAdapter teamAdapter;
     private TeamDatabase teamDatabase;
     private SearchView searchView;
+    private Switch themeSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,14 +65,16 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton startQuizButton = findViewById(R.id.btn_start_quiz);
         ImageButton viewLeaderboardButton = findViewById(R.id.btn_view_leaderboard);
-        ImageButton newsButton=findViewById(R.id.btn_news);
+        ImageButton newsButton = findViewById(R.id.btn_news);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         teamDatabase = Room.databaseBuilder(getApplicationContext(), TeamDatabase.class, "team.db")
                 .fallbackToDestructiveMigration()
                 .build();
+        loadTeamsFromFile();
+       //loadTeamsFromDatabase();
+
         String url = BASE_URL + "2024/constructors.json";
         new AsyncTaskHandleJson().execute(url);
 
@@ -99,30 +108,29 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
             startActivity(intent);
         });
-        startQuizButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, QuizActivity.class);
-            startActivity(intent);
-        });
+
         newsButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, NewsActivity.class);
             startActivity(intent);
         });
 
-        viewLeaderboardButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LeaderboardActivity.class);
-            startActivity(intent);
-        });
         ImageButton standingsButton = findViewById(R.id.btn_standings);
         standingsButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, StandingsActivity.class);
             startActivity(intent);
         });
-        ImageButton calendarButton=findViewById(R.id.btn_calendar);
+
+        ImageButton calendarButton = findViewById(R.id.btn_calendar);
         calendarButton.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, CalendarActivity.class);
             startActivity(intent);
         });
-        loadTeamsFromDatabase();
+
+        ImageButton logoutButton = findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void filterTeams(String query) {
@@ -135,69 +143,45 @@ public class MainActivity extends AppCompatActivity {
         teamAdapter.updateList(filteredTeams);
     }
 
-    private class AsyncTaskHandleJson extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            String result = "";
-            HttpURLConnection urlConnection = null;
-            try {
-                URL url = new URL(urls[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setConnectTimeout(5000);
-                urlConnection.setReadTimeout(5000);
-
-                InputStreamReader inputStreamReader = new InputStreamReader(urlConnection.getInputStream());
-                int data = inputStreamReader.read();
-                while (data != -1) {
-                    char current = (char) data;
-                    result += current;
-                    data = inputStreamReader.read();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            handleJson(result);
-        }
-    }
-
-    private void handleJson(String jsonString) {
-        if (jsonString == null || jsonString.isEmpty()) {
-            Toast.makeText(this, "Received empty data", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void loadTeamsFromFile() {
+        Gson gson = new Gson();
         try {
-            JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
-            JsonObject constructorTable = jsonObject.getAsJsonObject("MRData").getAsJsonObject("ConstructorTable");
-            JsonArray constructors = constructorTable.getAsJsonArray("Constructors");
-
-            List<Team> teamList = new ArrayList<>();
-            for (int i = 0; i < constructors.size(); i++) {
-                JsonObject constructor = constructors.get(i).getAsJsonObject();
-                String name = constructor.get("name").getAsString();
-                String nationality = constructor.get("nationality").getAsString();
-                int logoResource = getTeamLogo(name);
-                teamList.add(new Team(name, nationality, logoResource));
+            FileInputStream fis = openFileInput("teams.json");
+            InputStreamReader isr = new InputStreamReader(fis);
+            StringBuilder json = new StringBuilder();
+            int data = isr.read();
+            while (data != -1) {
+                json.append((char) data);
+                data = isr.read();
             }
+            isr.close();
+            fis.close();
+
+            Team[] teamArray = gson.fromJson(json.toString(), Team[].class);
+            List<Team> teamList = Arrays.asList(teamArray);
 
             arrTeams.clear();
             arrTeams.addAll(teamList);
-            teamAdapter.notifyDataSetChanged();
-            saveTeamsToFile(teamList);
-            saveTeamsToDatabase(teamList);
+            runOnUiThread(() -> teamAdapter.notifyDataSetChanged());
+
+            Toast.makeText(this, "Teams loaded from file", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed to parse data", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    private void saveTeamsToFile(List<Team> teams) {
+        Gson gson = new Gson();
+        String json = gson.toJson(teams);
+        try {
+            FileOutputStream fos = openFileOutput("teams.json", MODE_PRIVATE);
+            fos.write(json.getBytes());
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
         }
     }
 
@@ -249,19 +233,65 @@ public class MainActivity extends AppCompatActivity {
             notificationManager.notify(1, builder.build());
         }
     }
-    private void saveTeamsToFile(List<Team> teams) {
-        Gson gson = new Gson();
-        String json = gson.toJson(teams);
-        try {
-            FileOutputStream fos = openFileOutput("teams.json", MODE_PRIVATE);
-            fos.write(json.getBytes());
-            fos.close();
-            Toast.makeText(this, "Teams saved to file", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to save teams to file", Toast.LENGTH_SHORT).show();
+
+    private class AsyncTaskHandleJson extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            StringBuilder result = new StringBuilder();
+            try {
+                HttpURLConnection urlConnection = (HttpURLConnection) new URL(urls[0]).openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setConnectTimeout(5000);
+                urlConnection.setReadTimeout(5000);
+
+                InputStreamReader inputStreamReader = new InputStreamReader(urlConnection.getInputStream());
+                int data = inputStreamReader.read();
+                while (data != -1) {
+                    result.append((char) data);
+                    data = inputStreamReader.read();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return result.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            handleJson(result);
         }
     }
+
+    private void handleJson(String jsonString) {
+        if (jsonString == null || jsonString.isEmpty()) {
+            Toast.makeText(this, "Received empty data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
+            JsonObject constructorTable = jsonObject.getAsJsonObject("MRData").getAsJsonObject("ConstructorTable");
+            JsonArray constructors = constructorTable.getAsJsonArray("Constructors");
+
+            List<Team> teamList = new ArrayList<>();
+            for (int i = 0; i < constructors.size(); i++) {
+                JsonObject constructor = constructors.get(i).getAsJsonObject();
+                String name = constructor.get("name").getAsString();
+                String nationality = constructor.get("nationality").getAsString();
+                int logoResource = getTeamLogo(name);
+                teamList.add(new Team(name, nationality, logoResource));
+            }
+
+            arrTeams.clear();
+            arrTeams.addAll(teamList);
+            teamAdapter.notifyDataSetChanged();
+            saveTeamsToFile(teamList);
+            saveTeamsToDatabase(teamList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to parse data", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private int getTeamLogo(String teamName) {
         switch (teamName) {
             case "Mercedes":
@@ -288,4 +318,11 @@ public class MainActivity extends AppCompatActivity {
                 return R.drawable.redbull;
         }
     }
+
+
+    private boolean isDarkMode() {
+        SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        return preferences.getBoolean("isDarkMode", false);
+    }
+
 }

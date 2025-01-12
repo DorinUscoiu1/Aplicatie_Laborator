@@ -13,9 +13,6 @@ public class Team implements Serializable {
     private String name;
     private String nationality;
     private int logoResourceId;
-
-
-    // Constructor
     public Team(String name, String nationality, int logoResourceId) {
         this.name = name;
         this.nationality = nationality;

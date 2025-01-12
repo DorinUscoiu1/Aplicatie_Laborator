@@ -1,9 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/background_color">
+    android:background="#FFFFFF">
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:indeterminate="false"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="#FF0000"
+        android:layout_marginBottom="16dp"
+        style="?android:attr/progressBarStyleHorizontal" />
 
     <TextView
         android:id="@+id/question_text"
@@ -13,7 +25,7 @@
         android:textStyle="bold"
         android:padding="16dp"
         android:gravity="center"
-        android:textColor="@color/primary_text_color"
+        android:textColor="#FF0000"
         android:text="Question" />
 
     <RadioGroup
@@ -22,15 +34,20 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp"
-        android:background="@drawable/radio_group_background" />
+        android:layout_marginTop="16dp"
+        android:background="#F9F9F9" />
 
     <Button
         android:id="@+id/btn_submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:background="#D32F2F"
         android:text="Submit"
-        android:background="@drawable/button_background"
-        android:textColor="@android:color/white"
-        android:padding="12dp" />
+        android:textColor="#FFFFFF"
+        android:padding="12dp"
+        android:textAllCaps="true"
+        android:layout_gravity="center_horizontal"
+        tools:ignore="TextContrastCheck" />
+
 </LinearLayout>
