@@ -8,14 +8,15 @@
     android:orientation="vertical"
     android:background="#F5F5F5"
     android:padding="16dp">
+
     <ImageView
         android:id="@+id/f1_image"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="141dp"
         android:layout_marginBottom="16dp"
-        android:src="@drawable/f1"
+        android:contentDescription="Formula 1 Image"
         android:scaleType="centerCrop"
-        android:contentDescription="Formula 1 Image" />
+        android:src="@drawable/f1" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -46,11 +47,11 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="330dp"
+        android:layout_marginBottom="16dp"
         android:background="#FFFFFF"
         android:elevation="4dp"
-        android:padding="8dp"
-        android:layout_marginBottom="16dp" />
+        android:padding="8dp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -3,6 +3,7 @@ package com.example.aplicatie_laborator;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -219,20 +220,30 @@ public class MainActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                         == PackageManager.PERMISSION_GRANTED) {
 
+            // Detalii notificare
             String raceTitle = "Next F1 Race";
             String raceDetails = "16 Mar 2025, To be announced, Australia";
 
+            // Creăm Intent pentru MainActivity
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    this,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE
+            );
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "F1_NOTIFICATIONS")
                     .setSmallIcon(R.drawable.f1)
                     .setContentTitle(raceTitle)
                     .setContentText(raceDetails)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setAutoCancel(true);
-
+                    .setContentIntent(pendingIntent);
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
             notificationManager.notify(1, builder.build());
         }
     }
+
 
     private class AsyncTaskHandleJson extends AsyncTask<String, Void, String> {
         @Override
@@ -318,11 +329,4 @@ public class MainActivity extends AppCompatActivity {
                 return R.drawable.redbull;
         }
     }
-
-
-    private boolean isDarkMode() {
-        SharedPreferences preferences = getSharedPreferences("AppPrefs", MODE_PRIVATE);
-        return preferences.getBoolean("isDarkMode", false);
-    }
-
 }
